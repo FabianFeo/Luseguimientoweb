@@ -1,8 +1,11 @@
+import 'dart:html';
+
 import 'package:bouncing_widget/bouncing_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:luweb/service/emergenciaCollectionService.dart';
+import 'package:google_maps/google_maps.dart';
+import 'dart:ui' as ui;
 
 class Ubicacion extends StatefulWidget {
   final String pinCode;
@@ -14,7 +17,7 @@ class Ubicacion extends StatefulWidget {
 class _UbicacionState extends State<Ubicacion> {
   double height = 0;
   Set<Polyline> polylines = Set();
-  GoogleMapController _controller;
+
   double width = 0;
   LatLng _initialcameraposition = LatLng(4.6097100, -74.0817500);
   Set<Marker> _markers = Set();
@@ -33,33 +36,26 @@ class _UbicacionState extends State<Ubicacion> {
         child: Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        margin: EdgeInsets.only(top: height / 10),
         child: SingleChildScrollView(
           child: Stack(
             children: [
               Center(
                   child: Container(
-                decoration: BoxDecoration(
-                    color: const Color(0xff7c94b6),
-                    borderRadius: BorderRadius.all(Radius.circular(90))),
-                height: height - 50,
-                width: width,
-                child: GoogleMap(
-                  // ignore: non_constant_identifier_names
-
-                  myLocationButtonEnabled: true,
-                  buildingsEnabled: false,
-                  zoomControlsEnabled: false,
-                  polylines: polylines,
-                  markers: _markers,
-                  initialCameraPosition:
-                      CameraPosition(target: _initialcameraposition, zoom: 15),
-                  mapType: MapType.normal,
-                  onMapCreated: _onMapCreated,
-                  myLocationEnabled: true,
-                ),
-              )),
+                      decoration: BoxDecoration(
+                          color: const Color(0xff7c94b6),
+                          borderRadius: BorderRadius.all(Radius.circular(90))),
+                      height: height ,
+                      width: width,
+                      child: StreamBuilder(
+                          stream: _emergenciaCollectionService
+                              .getEmergenciaPoints(widget.pinCode),
+                          builder: (_, AsyncSnapshot<QuerySnapshot> asyncS) {
+                            return asyncS.data != null && asyncS.hasData
+                                ? getMap(asyncS.data.docs)
+                                : CircularProgressIndicator();
+                          }))),
               Container(
+                color: Colors.transparent,
                   child: Center(
                 child: Text(
                   'UBICACIÓN EN TIEMPO REAL.',
@@ -75,7 +71,7 @@ class _UbicacionState extends State<Ubicacion> {
                   stream: _emergenciaCollectionService
                       .getEmergencia(widget.pinCode),
                   builder: (_, AsyncSnapshot<DocumentSnapshot> asyncS) {
-                    if (asyncS.data.exists) {
+                    if (asyncS.data != null && asyncS.data.exists) {
                       asyncS.data.data();
                       return Container(
                           margin: EdgeInsets.only(top: height / 2),
@@ -94,13 +90,7 @@ class _UbicacionState extends State<Ubicacion> {
                                 Container(
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image(
-                                        height: height / 9,
-                                        image: AssetImage(
-                                            'assets/Logo/Lu_logo.png'),
-                                      ),
-                                    ],
+                                    children: [],
                                   ),
                                 ),
                                 Row(
@@ -169,25 +159,40 @@ class _UbicacionState extends State<Ubicacion> {
     ));
   }
 
-  void _onMapCreated(GoogleMapController _cntlr) {
-    _controller = _cntlr;
-    List<LatLng> polylineCoordinates = List();
-    _emergenciaCollectionService
-        .getEmergenciaPoints(widget.pinCode)
-        .listen((event) {
-      event.docs.forEach((element) {
-        polylineCoordinates.add(LatLng(element['lat'], element['lng']));
-      });
-      PolylineId id = PolylineId('poly');
-      Polyline polyline = Polyline(
-        polylineId: id,
-        color: Color.fromRGBO(101, 79, 168, 1),
-        points: polylineCoordinates,
-        width: 3,
-      );
-      setState(() {
-        polylines.add(polyline);
-      });
+  Widget getMap(List<QueryDocumentSnapshot> docs) {
+    String htmlId = "7";
+
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory(htmlId, (int viewId) {
+      final myLatlng = LatLng(docs[0].data()['lat'],docs[0].data()['lng']);
+
+    
+      List<LatLng> point = List();
+      docs
+        ..forEach((element) {
+          point.add(LatLng(element['lat'], element['lng']));
+        });
+          final mapOptions = MapOptions()
+        ..zoom = 25
+        ..center = myLatlng;
+
+      final elem = DivElement()
+        ..id = htmlId
+        ..style.width = "100%"
+        ..style.height = "100%"
+        ..style.border = 'none';
+      final map = GMap(elem, mapOptions);
+      Polyline(PolylineOptions()
+        ..map = map
+        ..path = point);
+      
+      
+      
+      
+
+      return elem;
     });
+
+    return HtmlElementView(viewType: htmlId);
   }
 }

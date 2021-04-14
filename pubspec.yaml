@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
-
+include: package:effective_dart/analysis_options.yaml
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
@@ -34,7 +34,9 @@ dependencies:
   firebase_storage: ^8.0.0
   cloud_firestore: ^1.0.0
   google_maps_flutter: ^2.0.1
+  google_maps_flutter_web: ^0.3.0
   firebase_analytics: ^7.1.1
+  google_maps: ^5.1.0
 
 
 dev_dependencies:
@@ -53,8 +55,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+   - assets/Logo/Usuaria.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -82,3 +84,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+analyzer:
+  errors:
+    undefined_prefixed_name: ignore
