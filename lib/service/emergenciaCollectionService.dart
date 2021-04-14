@@ -6,6 +6,6 @@ class EmergenciaCollectionService {
     return firestore.collection('emergencia').doc(pinCode).snapshots();
   }
    Stream<QuerySnapshot> getEmergenciaPoints(String pinCode) {
-    return firestore.collection('emergencia').doc(pinCode).collection('positions').snapshots();
+    return firestore.collection('emergencia').doc(pinCode).collection('positions').orderBy('Time').snapshots();
   }
 }

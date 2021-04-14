@@ -185,11 +185,6 @@ class _UbicacionState extends State<Ubicacion> {
       Polyline(PolylineOptions()
         ..map = map
         ..path = point);
-      
-      
-      
-      
-
       return elem;
     });
 
