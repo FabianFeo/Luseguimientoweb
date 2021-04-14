@@ -30,6 +30,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   pin_code_fields: ^7.0.0
   bouncing_widget: ^2.0.0
+  firebase_core: ^1.0.0
+  firebase_storage: ^8.0.0
+  cloud_firestore: ^1.0.0
+  google_maps_flutter: ^2.0.1
+  firebase_analytics: ^7.1.1
+
 
 dev_dependencies:
   flutter_test:

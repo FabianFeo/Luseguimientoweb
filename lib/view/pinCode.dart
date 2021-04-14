@@ -96,8 +96,12 @@ class _PinCodeState extends State<PinCode> {
                   duration: Duration(milliseconds: 100),
                   scaleFactor: 1.5,
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Ubicacion()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Ubicacion(
+                                  pinCode: currentText,
+                                )));
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
